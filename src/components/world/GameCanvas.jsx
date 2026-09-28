@@ -155,23 +155,19 @@ export default function GameCanvas({ initialSave }) {
     const unsubscribePowerShortage = simulation.events.on(
       "powerShortage",
       () => {
-        useUiStore
-          .getState()
-          .pushNotification({
-            tone: "warning",
-            message: "Power grid overload — some machines are unpowered",
-          });
+        useUiStore.getState().pushNotification({
+          tone: "warning",
+          message: "Power grid overload — some machines are unpowered",
+        });
       },
     );
     const unsubscribeResearch = simulation.events.on(
       "researchCompleted",
       (node) => {
-        useUiStore
-          .getState()
-          .pushNotification({
-            tone: "success",
-            message: `Research complete: ${node.name}`,
-          });
+        useUiStore.getState().pushNotification({
+          tone: "success",
+          message: `Research complete: ${node.name}`,
+        });
       },
     );
     const unsubscribeItemProduced = simulation.events.on(
