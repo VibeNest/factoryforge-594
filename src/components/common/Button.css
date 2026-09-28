@@ -11,7 +11,8 @@
   color: var(--ff-color-text-primary);
   font-size: var(--ff-font-size-sm);
   font-weight: var(--ff-font-weight-medium);
-  transition: background var(--ff-duration-fast) var(--ff-ease-standard),
+  transition:
+    background var(--ff-duration-fast) var(--ff-ease-standard),
     border-color var(--ff-duration-fast) var(--ff-ease-standard);
 }
 

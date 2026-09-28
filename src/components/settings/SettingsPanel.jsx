@@ -1,133 +1,168 @@
-import { useEffect, useRef, useState } from 'react'
-import { useUiStore } from '../../state/uiStore'
-import { getEngineInstance } from '../../game/engine/engineInstance.js'
-import { deleteSave, getSaveData, listSaves, saveGame, serializeSimulation } from '../../storage/saveGame.js'
-import { exportSaveData, parseImportedSave, readFileAsText } from '../../storage/importExport.js'
-import Modal from '../common/Modal'
-import Button from '../common/Button'
-import './SettingsPanel.css'
+import { useEffect, useRef, useState } from "react";
+import { useUiStore } from "../../state/uiStore";
+import { getEngineInstance } from "../../game/engine/engineInstance.js";
+import {
+  deleteSave,
+  getSaveData,
+  listSaves,
+  saveGame,
+  serializeSimulation,
+} from "../../storage/saveGame.js";
+import {
+  exportSaveData,
+  parseImportedSave,
+  readFileAsText,
+} from "../../storage/importExport.js";
+import Modal from "../common/Modal";
+import Button from "../common/Button";
+import "./SettingsPanel.css";
 
 function Toggle({ label, checked, onChange }) {
   return (
     <label className="ff-settings__row">
       <span>{label}</span>
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
     </label>
-  )
+  );
 }
 
 function formatDate(timestamp) {
   return new Date(timestamp).toLocaleString(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  })
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
 }
 
 export default function SettingsPanel() {
-  const settings = useUiStore((s) => s.settings)
-  const updateSettings = useUiStore((s) => s.updateSettings)
-  const closePanel = useUiStore((s) => s.closePanel)
-  const pushNotification = useUiStore((s) => s.pushNotification)
-  const requestNewGame = useUiStore((s) => s.requestNewGame)
-  const requestLoadGame = useUiStore((s) => s.requestLoadGame)
+  const settings = useUiStore((s) => s.settings);
+  const updateSettings = useUiStore((s) => s.updateSettings);
+  const closePanel = useUiStore((s) => s.closePanel);
+  const pushNotification = useUiStore((s) => s.pushNotification);
+  const requestNewGame = useUiStore((s) => s.requestNewGame);
+  const requestLoadGame = useUiStore((s) => s.requestLoadGame);
 
-  const [saveName, setSaveName] = useState('')
-  const [saves, setSaves] = useState([])
-  const [busy, setBusy] = useState(false)
-  const fileInputRef = useRef(null)
+  const [saveName, setSaveName] = useState("");
+  const [saves, setSaves] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const fileInputRef = useRef(null);
 
   async function refreshSaves() {
     try {
-      setSaves(await listSaves())
+      setSaves(await listSaves());
     } catch {
-      pushNotification({ tone: 'danger', message: 'Could not read saved games' })
+      pushNotification({
+        tone: "danger",
+        message: "Could not read saved games",
+      });
     }
   }
 
   useEffect(() => {
-    refreshSaves()
+    refreshSaves();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   function currentEngineOrWarn() {
-    const engine = getEngineInstance()
-    if (!engine) pushNotification({ tone: 'danger', message: 'No active game to save' })
-    return engine
+    const engine = getEngineInstance();
+    if (!engine)
+      pushNotification({ tone: "danger", message: "No active game to save" });
+    return engine;
   }
 
   async function handleSave() {
-    const engine = currentEngineOrWarn()
-    if (!engine) return
-    const name = saveName.trim() || `Save ${new Date().toLocaleString()}`
-    setBusy(true)
+    const engine = currentEngineOrWarn();
+    if (!engine) return;
+    const name = saveName.trim() || `Save ${new Date().toLocaleString()}`;
+    setBusy(true);
     try {
-      await saveGame(name, engine.simulation, engine.gameLoop)
-      pushNotification({ tone: 'success', message: `Saved "${name}"` })
-      setSaveName('')
-      await refreshSaves()
+      await saveGame(name, engine.simulation, engine.gameLoop);
+      pushNotification({ tone: "success", message: `Saved "${name}"` });
+      setSaveName("");
+      await refreshSaves();
     } catch {
-      pushNotification({ tone: 'danger', message: 'Save failed' })
+      pushNotification({ tone: "danger", message: "Save failed" });
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
   }
 
   async function handleLoad(name) {
-    if (!window.confirm(`Load "${name}"? Any unsaved progress in the current game will be lost.`)) return
-    setBusy(true)
+    if (
+      !window.confirm(
+        `Load "${name}"? Any unsaved progress in the current game will be lost.`,
+      )
+    )
+      return;
+    setBusy(true);
     try {
-      const data = await getSaveData(name)
-      requestLoadGame(data)
-      pushNotification({ tone: 'success', message: `Loaded "${name}"` })
-      closePanel()
+      const data = await getSaveData(name);
+      requestLoadGame(data);
+      pushNotification({ tone: "success", message: `Loaded "${name}"` });
+      closePanel();
     } catch (err) {
-      pushNotification({ tone: 'danger', message: err.message || 'Load failed' })
+      pushNotification({
+        tone: "danger",
+        message: err.message || "Load failed",
+      });
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
   }
 
   async function handleDelete(name) {
-    if (!window.confirm(`Delete save "${name}"? This cannot be undone.`)) return
+    if (!window.confirm(`Delete save "${name}"? This cannot be undone.`))
+      return;
     try {
-      await deleteSave(name)
-      pushNotification({ tone: 'info', message: `Deleted "${name}"` })
-      await refreshSaves()
+      await deleteSave(name);
+      pushNotification({ tone: "info", message: `Deleted "${name}"` });
+      await refreshSaves();
     } catch {
-      pushNotification({ tone: 'danger', message: 'Delete failed' })
+      pushNotification({ tone: "danger", message: "Delete failed" });
     }
   }
 
   function handleNewGame() {
-    if (!window.confirm('Start a new game? Any unsaved progress in the current game will be lost.')) return
-    requestNewGame()
-    closePanel()
+    if (
+      !window.confirm(
+        "Start a new game? Any unsaved progress in the current game will be lost.",
+      )
+    )
+      return;
+    requestNewGame();
+    closePanel();
   }
 
   function handleExport() {
-    const engine = currentEngineOrWarn()
-    if (!engine) return
-    const data = serializeSimulation(engine.simulation, engine.gameLoop)
-    exportSaveData(data)
-    pushNotification({ tone: 'success', message: 'Save exported' })
+    const engine = currentEngineOrWarn();
+    if (!engine) return;
+    const data = serializeSimulation(engine.simulation, engine.gameLoop);
+    exportSaveData(data);
+    pushNotification({ tone: "success", message: "Save exported" });
   }
 
   function handleImportClick() {
-    fileInputRef.current?.click()
+    fileInputRef.current?.click();
   }
 
   async function handleImportFile(e) {
-    const file = e.target.files?.[0]
-    e.target.value = '' // allow re-importing the same filename later
-    if (!file) return
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-importing the same filename later
+    if (!file) return;
     try {
-      const text = await readFileAsText(file)
-      const data = parseImportedSave(text)
-      requestLoadGame(data)
-      pushNotification({ tone: 'success', message: `Imported "${file.name}"` })
-      closePanel()
+      const text = await readFileAsText(file);
+      const data = parseImportedSave(text);
+      requestLoadGame(data);
+      pushNotification({ tone: "success", message: `Imported "${file.name}"` });
+      closePanel();
     } catch (err) {
-      pushNotification({ tone: 'danger', message: err.message || 'Import failed — file is not a valid save' })
+      pushNotification({
+        tone: "danger",
+        message: err.message || "Import failed — file is not a valid save",
+      });
     }
   }
 
@@ -183,13 +218,23 @@ export default function SettingsPanel() {
                 <li key={save.name}>
                   <div>
                     <span className="ff-settings__save-name">{save.name}</span>
-                    <span className="ff-settings__save-date">{formatDate(save.savedAt)}</span>
+                    <span className="ff-settings__save-date">
+                      {formatDate(save.savedAt)}
+                    </span>
                   </div>
                   <div className="ff-settings__save-actions">
-                    <Button variant="secondary" disabled={busy} onClick={() => handleLoad(save.name)}>
+                    <Button
+                      variant="secondary"
+                      disabled={busy}
+                      onClick={() => handleLoad(save.name)}
+                    >
                       Load
                     </Button>
-                    <Button variant="danger" disabled={busy} onClick={() => handleDelete(save.name)}>
+                    <Button
+                      variant="danger"
+                      disabled={busy}
+                      onClick={() => handleDelete(save.name)}
+                    >
                       Delete
                     </Button>
                   </div>
@@ -221,5 +266,5 @@ export default function SettingsPanel() {
         </div>
       </div>
     </Modal>
-  )
+  );
 }

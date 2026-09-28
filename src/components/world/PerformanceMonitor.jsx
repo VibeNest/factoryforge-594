@@ -1,4 +1,4 @@
-import './PerformanceMonitor.css'
+import "./PerformanceMonitor.css";
 
 /** Dev-only overlay (import.meta.env.DEV). */
 export default function PerformanceMonitor({ stats }) {
@@ -10,5 +10,5 @@ export default function PerformanceMonitor({ stats }) {
       <div>Entities {stats.entities}</div>
       <div>Active machines {stats.activeMachines}</div>
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import { RESOURCES } from '../../data/resources.js'
+import { RESOURCES } from "../../data/resources.js";
 
 /**
  * A capacity-aware item store, shared by the player's inventory,
@@ -17,60 +17,61 @@ import { RESOURCES } from '../../data/resources.js'
  */
 export class Inventory {
   constructor(capacityOverride = null) {
-    this.stacks = new Map()
-    this.capacityOverride = capacityOverride
+    this.stacks = new Map();
+    this.capacityOverride = capacityOverride;
   }
 
   capacityFor(resourceId) {
-    if (this.capacityOverride != null) return this.capacityOverride
-    return RESOURCES[resourceId]?.stackLimit ?? Infinity
+    if (this.capacityOverride != null) return this.capacityOverride;
+    return RESOURCES[resourceId]?.stackLimit ?? Infinity;
   }
 
   get(resourceId) {
-    return this.stacks.get(resourceId) ?? 0
+    return this.stacks.get(resourceId) ?? 0;
   }
 
   spaceFor(resourceId) {
-    return Math.max(0, this.capacityFor(resourceId) - this.get(resourceId))
+    return Math.max(0, this.capacityFor(resourceId) - this.get(resourceId));
   }
 
   canAdd(resourceId, qty) {
-    return this.spaceFor(resourceId) >= qty
+    return this.spaceFor(resourceId) >= qty;
   }
 
   has(resourceId, qty) {
-    return this.get(resourceId) >= qty
+    return this.get(resourceId) >= qty;
   }
 
   /** Adds up to capacity; returns how much was actually added. */
   add(resourceId, qty) {
-    const added = Math.min(qty, this.spaceFor(resourceId))
-    if (added > 0) this.stacks.set(resourceId, this.get(resourceId) + added)
-    return added
+    const added = Math.min(qty, this.spaceFor(resourceId));
+    if (added > 0) this.stacks.set(resourceId, this.get(resourceId) + added);
+    return added;
   }
 
   /** Removes up to what's available; returns how much was actually removed. */
   remove(resourceId, qty) {
-    const removed = Math.min(qty, this.get(resourceId))
-    if (removed > 0) this.stacks.set(resourceId, this.get(resourceId) - removed)
-    return removed
+    const removed = Math.min(qty, this.get(resourceId));
+    if (removed > 0)
+      this.stacks.set(resourceId, this.get(resourceId) - removed);
+    return removed;
   }
 
   /** Any resource id currently holding a positive amount. */
   firstAvailable() {
     for (const [resourceId, qty] of this.stacks) {
-      if (qty > 0) return resourceId
+      if (qty > 0) return resourceId;
     }
-    return null
+    return null;
   }
 
   entries() {
-    return this.stacks.entries()
+    return this.stacks.entries();
   }
 
   clone() {
-    const copy = new Inventory(this.capacityOverride)
-    copy.stacks = new Map(this.stacks)
-    return copy
+    const copy = new Inventory(this.capacityOverride);
+    copy.stacks = new Map(this.stacks);
+    return copy;
   }
 }

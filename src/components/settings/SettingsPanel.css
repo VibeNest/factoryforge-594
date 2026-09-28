@@ -13,7 +13,7 @@
   gap: var(--ff-space-4);
 }
 
-.ff-settings__row input[type='range'] {
+.ff-settings__row input[type="range"] {
   flex: 1;
   max-width: 160px;
 }

@@ -107,7 +107,8 @@
   --ff-minimap-size: 176px;
 
   /* ---- Focus ring (accessibility) ---- */
-  --ff-focus-ring: 0 0 0 2px var(--ff-color-bg-panel), 0 0 0 4px var(--ff-color-accent);
+  --ff-focus-ring:
+    0 0 0 2px var(--ff-color-bg-panel), 0 0 0 4px var(--ff-color-accent);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -121,7 +122,7 @@
 /* In-game "reduced motion" toggle (Settings) — same effect as the OS
    preference above, so it works even when the OS-level setting isn't
    available or the player just prefers stillness in this one app. */
-:root[data-reduced-motion='true'] {
+:root[data-reduced-motion="true"] {
   --ff-duration-fast: 0ms;
   --ff-duration-base: 0ms;
   --ff-duration-slow: 0ms;

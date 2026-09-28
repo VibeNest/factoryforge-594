@@ -1,23 +1,27 @@
-import { BUILD_CATEGORY } from '../../data/buildings.js'
-import { BELT_TYPES, BUFFER_CAP } from '../simulation/constants.js'
-import { Inventory } from '../simulation/Inventory.js'
-import { rotatedFootprint, footprintTiles } from './footprint.js'
-import { DEPOSIT_RESOURCE_ID } from '../world/WorldGrid.js'
+import { BUILD_CATEGORY } from "../../data/buildings.js";
+import { BELT_TYPES, BUFFER_CAP } from "../simulation/constants.js";
+import { Inventory } from "../simulation/Inventory.js";
+import { rotatedFootprint, footprintTiles } from "./footprint.js";
+import { DEPOSIT_RESOURCE_ID } from "../world/WorldGrid.js";
 
-let nextBuildingId = 1
+let nextBuildingId = 1;
 
 /** Picks the richest deposit tile under a mining drill's footprint, if any. */
 function findDeposit(world, x, y, footprint) {
-  let best = null
+  let best = null;
   for (const tile of footprintTiles(x, y, footprint)) {
-    const i = world.index(tile.x, tile.y)
-    const depositType = world.deposit[i]
-    if (depositType === 0) continue
+    const i = world.index(tile.x, tile.y);
+    const depositType = world.deposit[i];
+    if (depositType === 0) continue;
     if (!best || world.depositAmount[i] > best.amount) {
-      best = { tileIndex: i, type: depositType, amount: world.depositAmount[i] }
+      best = {
+        tileIndex: i,
+        type: depositType,
+        amount: world.depositAmount[i],
+      };
     }
   }
-  return best
+  return best;
 }
 
 /**
@@ -63,56 +67,58 @@ export function createBuilding(typeId, def, x, y, rotation, world) {
     rotation,
     footprint: rotatedFootprint(def.footprint, rotation),
     powered: true,
-  }
+  };
 
   if (def.category === BUILD_CATEGORY.MINING) {
-    const deposit = findDeposit(world, x, y, building.footprint)
-    building.depositTileIndex = deposit?.tileIndex ?? null
-    building.depositResourceId = deposit ? DEPOSIT_RESOURCE_ID[deposit.type] : null
-    building.progress = 0
-    building.outputBuffer = new Inventory(BUFFER_CAP)
+    const deposit = findDeposit(world, x, y, building.footprint);
+    building.depositTileIndex = deposit?.tileIndex ?? null;
+    building.depositResourceId = deposit
+      ? DEPOSIT_RESOURCE_ID[deposit.type]
+      : null;
+    building.progress = 0;
+    building.outputBuffer = new Inventory(BUFFER_CAP);
   }
 
   if (def.recipeCapable) {
-    building.recipeId = null
-    building.inputBuffer = new Inventory(BUFFER_CAP)
-    building.outputBuffer = new Inventory(BUFFER_CAP)
-    building.progress = 0
-    building.processing = false
-    building.status = 'idle'
+    building.recipeId = null;
+    building.inputBuffer = new Inventory(BUFFER_CAP);
+    building.outputBuffer = new Inventory(BUFFER_CAP);
+    building.progress = 0;
+    building.processing = false;
+    building.status = "idle";
   }
 
   if (BELT_TYPES.has(typeId)) {
-    building.items = []
+    building.items = [];
   }
 
-  if (typeId === 'inserter') {
-    building.cooldown = 0
+  if (typeId === "inserter") {
+    building.cooldown = 0;
   }
 
   if (def.category === BUILD_CATEGORY.STORAGE) {
-    const storage = new Inventory()
-    building.inputBuffer = storage
-    building.outputBuffer = storage
+    const storage = new Inventory();
+    building.inputBuffer = storage;
+    building.outputBuffer = storage;
   }
 
   if (def.powerGeneration > 0) {
-    building.inputBuffer = new Inventory(BUFFER_CAP)
-    building.fuelSeconds = 0
-    building.generating = false
+    building.inputBuffer = new Inventory(BUFFER_CAP);
+    building.fuelSeconds = 0;
+    building.generating = false;
   }
 
   if (def.researchCapable) {
-    building.inputBuffer = new Inventory(BUFFER_CAP)
-    building.progress = 0
-    building.researching = false
-    building.status = 'idle'
+    building.inputBuffer = new Inventory(BUFFER_CAP);
+    building.progress = 0;
+    building.researching = false;
+    building.status = "idle";
   }
 
-  return building
+  return building;
 }
 
 // Exposed for tests / save-load (Step 12) to keep ids unique across a session.
 export function resetBuildingIdCounter(startAt = 1) {
-  nextBuildingId = startAt
+  nextBuildingId = startAt;
 }

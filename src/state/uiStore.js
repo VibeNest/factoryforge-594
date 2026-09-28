@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+import { create } from "zustand";
 
 /**
  * UI-facing application state only: panels, selection, build mode, and
@@ -7,15 +7,15 @@ import { create } from 'zustand'
  * for how the engine's world state is bridged into React sparingly.
  */
 
-export const SIM_SPEEDS = [0.5, 1, 2, 4]
+export const SIM_SPEEDS = [0.5, 1, 2, 4];
 
 export const PANEL = {
   NONE: null,
-  STATS: 'stats',
-  RESEARCH: 'research',
-  SETTINGS: 'settings',
-  SHORTCUTS: 'shortcuts',
-}
+  STATS: "stats",
+  RESEARCH: "research",
+  SETTINGS: "settings",
+  SHORTCUTS: "shortcuts",
+};
 
 export const useUiStore = create((set, get) => ({
   // --- simulation transport controls (read by the engine loop) ---
@@ -37,9 +37,14 @@ export const useUiStore = create((set, get) => ({
     })),
   selectBuildingForPlacement: (buildingId) =>
     set({ selectedBuildingId: buildingId, placementRotation: 0 }),
-  rotatePlacement: () => set((s) => ({ placementRotation: (s.placementRotation + 90) % 360 })),
+  rotatePlacement: () =>
+    set((s) => ({ placementRotation: (s.placementRotation + 90) % 360 })),
   cancelBuildMode: () =>
-    set({ activeBuildCategory: null, selectedBuildingId: null, placementRotation: 0 }),
+    set({
+      activeBuildCategory: null,
+      selectedBuildingId: null,
+      placementRotation: 0,
+    }),
 
   // --- selection / inspector ---
   selectedEntityId: null,
@@ -48,7 +53,8 @@ export const useUiStore = create((set, get) => ({
 
   // --- side panels ---
   activePanel: PANEL.NONE,
-  openPanel: (panel) => set((s) => ({ activePanel: s.activePanel === panel ? PANEL.NONE : panel })),
+  openPanel: (panel) =>
+    set((s) => ({ activePanel: s.activePanel === panel ? PANEL.NONE : panel })),
   closePanel: () => set({ activePanel: PANEL.NONE }),
 
   // --- settings ---
@@ -58,7 +64,8 @@ export const useUiStore = create((set, get) => ({
     volume: 0.6,
     reducedMotion: false,
   },
-  updateSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
+  updateSettings: (patch) =>
+    set((s) => ({ settings: { ...s.settings, ...patch } })),
 
   // --- notifications (toasts) ---
   notifications: [],
@@ -66,7 +73,7 @@ export const useUiStore = create((set, get) => ({
     set((s) => ({
       notifications: [
         ...s.notifications,
-        { id: crypto.randomUUID(), tone: 'info', ...notification },
+        { id: crypto.randomUUID(), tone: "info", ...notification },
       ],
     })),
   dismissNotification: (id) =>
@@ -83,7 +90,17 @@ export const useUiStore = create((set, get) => ({
   worldEpoch: 0,
   pendingLoad: null,
   requestNewGame: () =>
-    set((s) => ({ worldEpoch: s.worldEpoch + 1, pendingLoad: null, selectedEntityId: null, activePanel: PANEL.NONE })),
+    set((s) => ({
+      worldEpoch: s.worldEpoch + 1,
+      pendingLoad: null,
+      selectedEntityId: null,
+      activePanel: PANEL.NONE,
+    })),
   requestLoadGame: (saveData) =>
-    set((s) => ({ worldEpoch: s.worldEpoch + 1, pendingLoad: saveData, selectedEntityId: null, activePanel: PANEL.NONE })),
-}))
+    set((s) => ({
+      worldEpoch: s.worldEpoch + 1,
+      pendingLoad: saveData,
+      selectedEntityId: null,
+      activePanel: PANEL.NONE,
+    })),
+}));

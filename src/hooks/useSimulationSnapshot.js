@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { getEngineInstance } from '../game/engine/engineInstance.js'
+import { useEffect, useState } from "react";
+import { getEngineInstance } from "../game/engine/engineInstance.js";
 
 /**
  * Throttled bridge from the engine's mutable, per-tick simulation state
@@ -9,18 +9,18 @@ import { getEngineInstance } from '../game/engine/engineInstance.js'
  */
 export function useSimulationSnapshot(selector, intervalMs = 250) {
   const [snapshot, setSnapshot] = useState(() => {
-    const engine = getEngineInstance()
-    return engine ? selector(engine) : null
-  })
+    const engine = getEngineInstance();
+    return engine ? selector(engine) : null;
+  });
 
   useEffect(() => {
     const id = setInterval(() => {
-      const engine = getEngineInstance()
-      if (!engine) return
-      setSnapshot(selector(engine))
-    }, intervalMs)
-    return () => clearInterval(id)
-  }, [selector, intervalMs])
+      const engine = getEngineInstance();
+      if (!engine) return;
+      setSnapshot(selector(engine));
+    }, intervalMs);
+    return () => clearInterval(id);
+  }, [selector, intervalMs]);
 
-  return snapshot
+  return snapshot;
 }

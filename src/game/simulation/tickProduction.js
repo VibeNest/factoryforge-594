@@ -1,4 +1,4 @@
-import { RECIPES } from '../../data/recipes.js'
+import { RECIPES } from "../../data/recipes.js";
 
 /**
  * Furnace/assembler recipe processing. Inputs are consumed all at once
@@ -10,54 +10,54 @@ import { RECIPES } from '../../data/recipes.js'
  */
 export function tickProduction(simulation, dt) {
   for (const building of simulation.buildings) {
-    if (building.recipeId === undefined) continue // not a recipe-capable building
+    if (building.recipeId === undefined) continue; // not a recipe-capable building
 
     if (!building.recipeId) {
-      building.status = 'idle'
-      continue
+      building.status = "idle";
+      continue;
     }
 
     if (!building.powered) {
-      building.status = 'unpowered'
-      continue
+      building.status = "unpowered";
+      continue;
     }
 
-    const recipe = RECIPES[building.recipeId]
+    const recipe = RECIPES[building.recipeId];
 
     if (!building.processing) {
-      const inputsReady = Object.entries(recipe.input).every(([resourceId, qty]) =>
-        building.inputBuffer.has(resourceId, qty),
-      )
+      const inputsReady = Object.entries(recipe.input).every(
+        ([resourceId, qty]) => building.inputBuffer.has(resourceId, qty),
+      );
       if (!inputsReady) {
-        building.status = 'starved'
-        continue
+        building.status = "starved";
+        continue;
       }
 
-      const outputsHaveRoom = Object.entries(recipe.output).every(([resourceId, qty]) =>
-        building.outputBuffer.canAdd(resourceId, qty),
-      )
+      const outputsHaveRoom = Object.entries(recipe.output).every(
+        ([resourceId, qty]) => building.outputBuffer.canAdd(resourceId, qty),
+      );
       if (!outputsHaveRoom) {
-        building.status = 'blocked'
-        continue
+        building.status = "blocked";
+        continue;
       }
 
       for (const [resourceId, qty] of Object.entries(recipe.input)) {
-        building.inputBuffer.remove(resourceId, qty)
-        simulation.events.emit('itemConsumed', { resourceId, qty })
+        building.inputBuffer.remove(resourceId, qty);
+        simulation.events.emit("itemConsumed", { resourceId, qty });
       }
-      building.processing = true
-      building.progress = 0
-      building.status = 'running'
+      building.processing = true;
+      building.progress = 0;
+      building.status = "running";
     }
 
-    building.progress += dt
+    building.progress += dt;
     if (building.progress >= recipe.time) {
       for (const [resourceId, qty] of Object.entries(recipe.output)) {
-        building.outputBuffer.add(resourceId, qty)
-        simulation.events.emit('itemProduced', { resourceId, qty })
+        building.outputBuffer.add(resourceId, qty);
+        simulation.events.emit("itemProduced", { resourceId, qty });
       }
-      building.processing = false
-      building.progress = 0
+      building.processing = false;
+      building.progress = 0;
     }
   }
 }

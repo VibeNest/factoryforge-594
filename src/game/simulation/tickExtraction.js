@@ -1,5 +1,5 @@
-import { BUILDINGS, BUILD_CATEGORY } from '../../data/buildings.js'
-import { MINING_SPEED_BOOST_MULTIPLIER } from '../../data/research.js'
+import { BUILDINGS, BUILD_CATEGORY } from "../../data/buildings.js";
+import { MINING_SPEED_BOOST_MULTIPLIER } from "../../data/research.js";
 
 /**
  * Mining drills accumulate fractional progress at their def's
@@ -10,36 +10,45 @@ import { MINING_SPEED_BOOST_MULTIPLIER } from '../../data/research.js'
  * why.
  */
 export function tickExtraction(simulation, dt) {
-  const world = simulation.world
+  const world = simulation.world;
 
   for (const building of simulation.buildings) {
-    const def = BUILDINGS[building.typeId]
-    if (def.category !== BUILD_CATEGORY.MINING) continue
-    if (!building.powered) continue
-    if (building.depositTileIndex === null) continue
+    const def = BUILDINGS[building.typeId];
+    if (def.category !== BUILD_CATEGORY.MINING) continue;
+    if (!building.powered) continue;
+    if (building.depositTileIndex === null) continue;
 
-    const remaining = world.depositAmount[building.depositTileIndex]
+    const remaining = world.depositAmount[building.depositTileIndex];
     if (remaining <= 0) {
-      building.depositTileIndex = null
-      building.depositResourceId = null
-      continue
+      building.depositTileIndex = null;
+      building.depositResourceId = null;
+      continue;
     }
 
-    const space = building.outputBuffer.spaceFor(building.depositResourceId)
-    if (space <= 0) continue
+    const space = building.outputBuffer.spaceFor(building.depositResourceId);
+    if (space <= 0) continue;
 
-    const speedMultiplier = simulation.completedResearch.has('improvedMining') ? MINING_SPEED_BOOST_MULTIPLIER : 1
-    building.progress += dt * def.miningSpeed * speedMultiplier
-    if (building.progress < 1) continue
+    const speedMultiplier = simulation.completedResearch.has("improvedMining")
+      ? MINING_SPEED_BOOST_MULTIPLIER
+      : 1;
+    building.progress += dt * def.miningSpeed * speedMultiplier;
+    if (building.progress < 1) continue;
 
-    const whole = Math.floor(building.progress)
-    building.progress -= whole
+    const whole = Math.floor(building.progress);
+    building.progress -= whole;
 
-    const extracted = Math.min(whole, remaining)
-    if (extracted <= 0) continue
+    const extracted = Math.min(whole, remaining);
+    if (extracted <= 0) continue;
 
-    const added = building.outputBuffer.add(building.depositResourceId, extracted)
-    world.depositAmount[building.depositTileIndex] -= added
-    if (added > 0) simulation.events.emit('itemProduced', { resourceId: building.depositResourceId, qty: added })
+    const added = building.outputBuffer.add(
+      building.depositResourceId,
+      extracted,
+    );
+    world.depositAmount[building.depositTileIndex] -= added;
+    if (added > 0)
+      simulation.events.emit("itemProduced", {
+        resourceId: building.depositResourceId,
+        qty: added,
+      });
   }
 }

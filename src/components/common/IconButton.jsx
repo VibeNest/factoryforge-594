@@ -1,10 +1,16 @@
-import './IconButton.css'
+import "./IconButton.css";
 
-export default function IconButton({ active = false, disabled = false, onClick, title, children }) {
+export default function IconButton({
+  active = false,
+  disabled = false,
+  onClick,
+  title,
+  children,
+}) {
   return (
     <button
       type="button"
-      className={`ff-icon-btn${active ? ' ff-icon-btn--active' : ''}`}
+      className={`ff-icon-btn${active ? " ff-icon-btn--active" : ""}`}
       disabled={disabled}
       onClick={onClick}
       title={title}
@@ -13,5 +19,5 @@ export default function IconButton({ active = false, disabled = false, onClick, 
     >
       {children}
     </button>
-  )
+  );
 }

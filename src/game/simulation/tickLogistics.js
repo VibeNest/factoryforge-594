@@ -1,14 +1,14 @@
-import { BUILDINGS } from '../../data/buildings.js'
-import { directionDelta } from '../world/directions.js'
-import { BELT_TYPES, ITEM_SPACING } from './constants.js'
+import { BUILDINGS } from "../../data/buildings.js";
+import { directionDelta } from "../world/directions.js";
+import { BELT_TYPES, ITEM_SPACING } from "./constants.js";
 
 function isConveyor(building) {
-  return BELT_TYPES.has(building.typeId)
+  return BELT_TYPES.has(building.typeId);
 }
 
 function buildingAt(simulation, x, y) {
-  const id = simulation.world.buildingId[simulation.world.index(x, y)]
-  return id === -1 ? null : simulation.buildingsById.get(id)
+  const id = simulation.world.buildingId[simulation.world.index(x, y)];
+  return id === -1 ? null : simulation.buildingsById.get(id);
 }
 
 /**
@@ -27,48 +27,56 @@ function buildingAt(simulation, x, y) {
  *     (tickInserters.js), not the belt's.
  */
 export function tickLogistics(simulation, dt) {
-  const world = simulation.world
+  const world = simulation.world;
 
   for (const building of simulation.buildings) {
-    if (!isConveyor(building)) continue
-    const items = building.items
-    if (items.length === 0) continue
+    if (!isConveyor(building)) continue;
+    const items = building.items;
+    if (items.length === 0) continue;
 
-    const step = dt * BUILDINGS[building.typeId].beltSpeed
+    const step = dt * BUILDINGS[building.typeId].beltSpeed;
 
     for (let i = 0; i < items.length; i++) {
-      const item = items[i]
-      const spaceAhead = i === 0 ? 1 - item.distance : items[i - 1].distance - ITEM_SPACING - item.distance
-      item.distance += Math.min(step, Math.max(0, spaceAhead))
+      const item = items[i];
+      const spaceAhead =
+        i === 0
+          ? 1 - item.distance
+          : items[i - 1].distance - ITEM_SPACING - item.distance;
+      item.distance += Math.min(step, Math.max(0, spaceAhead));
     }
   }
 
   for (const building of simulation.buildings) {
-    if (!isConveyor(building)) continue
-    const items = building.items
-    if (items.length === 0) continue
+    if (!isConveyor(building)) continue;
+    const items = building.items;
+    if (items.length === 0) continue;
 
-    const lead = items[0]
-    if (lead.distance < 1) continue
+    const lead = items[0];
+    if (lead.distance < 1) continue;
 
-    const { dx, dy } = directionDelta(building.rotation)
-    const nx = building.x + dx
-    const ny = building.y + dy
-    const nextBuilding = world.inBounds(nx, ny) ? buildingAt(simulation, nx, ny) : null
+    const { dx, dy } = directionDelta(building.rotation);
+    const nx = building.x + dx;
+    const ny = building.y + dy;
+    const nextBuilding = world.inBounds(nx, ny)
+      ? buildingAt(simulation, nx, ny)
+      : null;
 
     if (nextBuilding && isConveyor(nextBuilding)) {
-      const nextItems = nextBuilding.items
-      const tailDistance = nextItems.length > 0 ? nextItems[nextItems.length - 1].distance : Infinity
+      const nextItems = nextBuilding.items;
+      const tailDistance =
+        nextItems.length > 0
+          ? nextItems[nextItems.length - 1].distance
+          : Infinity;
       if (tailDistance >= ITEM_SPACING) {
-        items.shift()
+        items.shift();
         nextItems.push({
           resourceId: lead.resourceId,
           distance: Math.min(lead.distance - 1, tailDistance - ITEM_SPACING),
-        })
-        continue
+        });
+        continue;
       }
     }
 
-    lead.distance = 1
+    lead.distance = 1;
   }
 }

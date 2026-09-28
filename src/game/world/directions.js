@@ -11,8 +11,8 @@ const DIRECTION_DELTA = {
   90: { dx: 1, dy: 0 },
   180: { dx: 0, dy: 1 },
   270: { dx: -1, dy: 0 },
-}
+};
 
 export function directionDelta(rotation) {
-  return DIRECTION_DELTA[rotation] ?? DIRECTION_DELTA[0]
+  return DIRECTION_DELTA[rotation] ?? DIRECTION_DELTA[0];
 }

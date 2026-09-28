@@ -1,6 +1,6 @@
-import { EventBus } from '../engine/EventBus.js'
-import { CommandHistory } from '../engine/CommandHistory.js'
-import { Inventory } from './Inventory.js'
+import { EventBus } from "../engine/EventBus.js";
+import { CommandHistory } from "../engine/CommandHistory.js";
+import { Inventory } from "./Inventory.js";
 
 // Starting stock so building placement is testable before the mining
 // and processing chain (Step 7) can produce these materials itself.
@@ -13,7 +13,7 @@ const STARTING_INVENTORY = {
   gear: 20,
   circuit: 15,
   steel: 10,
-}
+};
 
 /**
  * The engine-owned world: the WorldGrid plus everything that isn't a
@@ -29,24 +29,24 @@ const STARTING_INVENTORY = {
  */
 export class SimulationState {
   constructor(world) {
-    this.world = world
-    this.events = new EventBus()
-    this.systems = []
-    this.history = new CommandHistory()
+    this.world = world;
+    this.events = new EventBus();
+    this.systems = [];
+    this.history = new CommandHistory();
 
-    this.buildings = []
-    this.buildingsById = new Map()
+    this.buildings = [];
+    this.buildingsById = new Map();
 
-    this.playerInventory = new Inventory()
+    this.playerInventory = new Inventory();
     for (const [resourceId, qty] of Object.entries(STARTING_INVENTORY)) {
-      this.playerInventory.add(resourceId, qty)
+      this.playerInventory.add(resourceId, qty);
     }
 
-    this.powerSummary = { production: 0, consumption: 0, overloaded: false }
+    this.powerSummary = { production: 0, consumption: 0, overloaded: false };
 
-    this.completedResearch = new Set()
-    this.activeResearchId = null
-    this.researchProgressByNode = new Map()
+    this.completedResearch = new Set();
+    this.activeResearchId = null;
+    this.researchProgressByNode = new Map();
 
     // Cumulative counters (fed by 'itemProduced'/'itemConsumed' events)
     // plus a rolling history sampled by tickStatsSampler, used to
@@ -59,18 +59,18 @@ export class SimulationState {
       elapsedSeconds: 0,
       sampleClock: 0,
       history: [],
-    }
-    this.bottlenecks = []
-    this.bottleneckClock = 0
+    };
+    this.bottlenecks = [];
+    this.bottleneckClock = 0;
   }
 
   registerSystem(system) {
-    this.systems.push(system)
+    this.systems.push(system);
   }
 
   runTick(dt) {
     for (const system of this.systems) {
-      system(this, dt)
+      system(this, dt);
     }
   }
 }

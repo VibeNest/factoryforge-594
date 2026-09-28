@@ -8,7 +8,8 @@
   border: 1px solid transparent;
   background: transparent;
   color: var(--ff-color-text-secondary);
-  transition: background var(--ff-duration-fast) var(--ff-ease-standard),
+  transition:
+    background var(--ff-duration-fast) var(--ff-ease-standard),
     color var(--ff-duration-fast) var(--ff-ease-standard);
 }
 

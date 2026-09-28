@@ -1,11 +1,11 @@
-import { BUILDINGS } from '../../data/buildings.js'
-import { directionDelta } from '../world/directions.js'
-import { ITEM_SPACING } from './constants.js'
+import { BUILDINGS } from "../../data/buildings.js";
+import { directionDelta } from "../world/directions.js";
+import { ITEM_SPACING } from "./constants.js";
 
 function buildingAt(simulation, x, y) {
-  if (!simulation.world.inBounds(x, y)) return null
-  const id = simulation.world.buildingId[simulation.world.index(x, y)]
-  return id === -1 ? null : simulation.buildingsById.get(id)
+  if (!simulation.world.inBounds(x, y)) return null;
+  const id = simulation.world.buildingId[simulation.world.index(x, y)];
+  return id === -1 ? null : simulation.buildingsById.get(id);
 }
 
 /**
@@ -17,41 +17,46 @@ function buildingAt(simulation, x, y) {
  */
 export function tickInserters(simulation, dt) {
   for (const building of simulation.buildings) {
-    if (building.typeId !== 'inserter') continue
-    if (!building.powered) continue
+    if (building.typeId !== "inserter") continue;
+    if (!building.powered) continue;
 
-    building.cooldown -= dt
-    if (building.cooldown > 0) continue
+    building.cooldown -= dt;
+    if (building.cooldown > 0) continue;
 
-    const { dx, dy } = directionDelta(building.rotation)
-    const source = buildingAt(simulation, building.x - dx, building.y - dy)
-    const dest = buildingAt(simulation, building.x + dx, building.y + dy)
-    if (!source || !dest) continue
+    const { dx, dy } = directionDelta(building.rotation);
+    const source = buildingAt(simulation, building.x - dx, building.y - dy);
+    const dest = buildingAt(simulation, building.x + dx, building.y + dy);
+    if (!source || !dest) continue;
 
-    const takingFromBelt = Array.isArray(source.items)
-    const resourceId = takingFromBelt ? source.items[0]?.resourceId : source.outputBuffer?.firstAvailable()
-    if (!resourceId) continue
+    const takingFromBelt = Array.isArray(source.items);
+    const resourceId = takingFromBelt
+      ? source.items[0]?.resourceId
+      : source.outputBuffer?.firstAvailable();
+    if (!resourceId) continue;
 
-    let deposited = false
+    let deposited = false;
     if (Array.isArray(dest.items)) {
-      const tailDistance = dest.items.length > 0 ? dest.items[dest.items.length - 1].distance : Infinity
+      const tailDistance =
+        dest.items.length > 0
+          ? dest.items[dest.items.length - 1].distance
+          : Infinity;
       if (tailDistance >= ITEM_SPACING) {
-        dest.items.push({ resourceId, distance: 0 })
-        deposited = true
+        dest.items.push({ resourceId, distance: 0 });
+        deposited = true;
       }
     } else if (dest.inputBuffer?.canAdd(resourceId, 1)) {
-      dest.inputBuffer.add(resourceId, 1)
-      deposited = true
+      dest.inputBuffer.add(resourceId, 1);
+      deposited = true;
     }
 
-    if (!deposited) continue
+    if (!deposited) continue;
 
     if (takingFromBelt) {
-      source.items.shift()
+      source.items.shift();
     } else {
-      source.outputBuffer.remove(resourceId, 1)
+      source.outputBuffer.remove(resourceId, 1);
     }
 
-    building.cooldown = 1 / BUILDINGS.inserter.inserterSpeed
+    building.cooldown = 1 / BUILDINGS.inserter.inserterSpeed;
   }
 }

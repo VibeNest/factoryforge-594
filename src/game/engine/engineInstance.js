@@ -5,12 +5,12 @@
  * refs down from the canvas. There is only ever one running world, so
  * a singleton is simpler than context here.
  */
-let instance = null
+let instance = null;
 
 export function setEngineInstance(next) {
-  instance = next
+  instance = next;
 }
 
 export function getEngineInstance() {
-  return instance
+  return instance;
 }
